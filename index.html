@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葫蘆樂園小編催稿產生器</title>
+
+</head>
+
+<body>
+    姓名<br /><input type="text" id="name"><br />
+    日期<br /><input type="date" id="startDate"><br />
+    節目名稱<br /><input type=" text" id="performance"><br />
+    <button id="btn">催稿！</button>
+    <p id="output"></p>
+    <button type="button" id="copy" onclick="copy()">複製</button>
+
+
+</body>
+<script>
+
+    Date.prototype.format = function (fmt) {
+        const o = {
+            "M+": this.getMonth() + 1,                 //月
+            "d+": this.getDate(),                    //日 
+            "h+": this.getHours(),                   //小時 
+            "m+": this.getMinutes(),                 //分 
+            "s+": this.getSeconds(),                 //秒 
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季 
+            "S": this.getMilliseconds()             //毫秒
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        for (let k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    const DateDiff = function (sDate1, sDate2) { // sDate1 和 sDate2 是 2016-06-18 格式
+        let aDate, oDate1, oDate2, iDays
+        aDate = sDate1.split("/")
+        oDate1 = new Date(aDate[1] + '/' + aDate[2] + '/' + aDate[0]) // 轉換為 06/18/2016 格式
+        aDate = sDate2.split("/")
+        oDate2 = new Date(aDate[1] + '/' + aDate[2] + '/' + aDate[0])
+        iDays = parseInt(Math.abs(oDate1 - oDate2) / 1000 / 60 / 60 / 24) // 把相差的毫秒數轉換為天數
+        return iDays;
+    };
+
+    const CopyTextToClipboard = (id) => {
+        let TextRange = document.createRange();
+        TextRange.selectNode(document.getElementById(id));
+        sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(TextRange);
+        document.execCommand("copy");
+    }
+
+    const copy = () => {
+        return CopyTextToClipboard("output")
+    }
+
+
+    Date.prototype.addDays = function (days) {
+        this.setDate(this.getDate() + days);
+        return this;
+    }
+
+    const getTextBtn = document.getElementById("btn");
+    const outputText = document.getElementById("output");
+    const authorName = document.getElementById("name");
+    const performanceName = document.getElementById("performance");
+    const performanceDate = document.getElementById("startDate");
+    const today = new Date().format("yyyy-MM-dd");
+
+    getTextBtn.addEventListener('click', button => {
+        let startDay = new Date(performanceDate.value);
+        let startDayFormat = startDay.format("yyyy-MM-dd");
+        let endDay = startDay.addDays(30).format("yyyy-MM-dd");
+        let deadline = DateDiff(endDay, today);
+        outputText.innerHTML = `${authorName.value}大德您好，葫蘆樂園小編來催稿囉～～～<br>您於 ${performanceDate.value} 觀看的 
+        《${performanceName.value}》 評論，<br>離截稿日 ${endDay} 尚有 ${deadline} 天，特此來訊提醒，<br>大家都很期待您的評論上線喔～～！！<br>葫蘆樂園小編感恩您的愛護與努力～～🥰`
+    });
+
+</script>
+
+</html>
